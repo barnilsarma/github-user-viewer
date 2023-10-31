@@ -1,0 +1,105 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="./styles.css">
+    <title>GITHUB USER VIEWER</title>
+    <script>
+        async function searchUser() {
+            try {
+                let user = document.getElementById("user_search").value;
+                let api_url = `https://api.github.com/users/${user}`;
+                let request = await fetch(api_url);
+                var data = await request.json();
+                if (!request) {
+                    document.getElementById("loader").style.visibility = "not found";
+                }
+                if (request) {
+                    document.getElementsByClassName('repo-cont')[0].innerHTML = '';
+                    document.getElementById('followers_list').innerHTML = '';
+                    document.getElementById('following_list').innerHTML = '';
+                    document.getElementById("loader").style.visibility = "hidden";
+                    document.getElementById("avatar").src = data.avatar_url;
+                    document.getElementById("avatar").style.visibility = "visible";
+                    document.getElementById("avatar").style.height = "20rem";
+                    document.getElementById("avatar").style.width = "20rem";
+
+                    document.getElementById("username").innerHTML = data.login;
+                    let request_follower = await fetch(`${data.followers_url}`);
+                    var follower_data = await request_follower.json();
+                    if (request_follower) {
+                        document.getElementById('followers_list').innerHTML = `<h1>Followers: ${follower_data.length}</h1>`;
+                        for (var r = 0; r < follower_data.length; r++) {
+                            var t = `
+                        <div class="each-item">
+                            <img src=${follower_data[r].avatar_url}>
+                            <h3>${follower_data[r].login}</h3>
+                        </div>
+                        `;
+                            document.getElementById('followers_list').innerHTML += t;
+                        }
+                    }
+                    let request_following = await fetch(`${data.url}/following`);
+                    var following_data = await request_following.json();
+                    if (request_following) {
+                        document.getElementById('following_list').innerHTML = `<h1>Following: ${following_data.length}</h1>`;
+                        for (var r = 0; r < following_data.length; r++) {
+                            var t = `
+                        <div class="each-item">
+                            <img src=${following_data[r].avatar_url}>
+                            <h3>${following_data[r].login}</h3>
+                        </div>
+                        `;
+                            document.getElementById('following_list').innerHTML += t;
+                        }
+                    }
+                    let request_repo = await fetch(`${data.repos_url}`);
+                    var repo_data = await request_repo.json();
+                    if (request_repo) {
+                        document.getElementsByClassName('repo-cont')[0].innerHTML = `
+                    <h4>REPOSITORIES</h4>
+                    <div id="repos"></div>
+                    `;
+                        document.getElementById('repos').innerHTML = repo_data.length;
+                    }
+                }
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <main>
+        <h1 style="text-align: center;">GITHUB USER VIEWER</h1>
+        <div id="search"><input type="text" id="user_search" placeholder="Type any username of github here "><button
+                onclick="searchUser()">SEARCH</button></div>
+        <div id="details">
+            <div id="loader">Search Some github usernames to see a result</div>
+            <div id="profile">
+                <img alt="avatar" id="avatar">
+                <div>
+                    <h1 id="username"></h1>
+                    <div class="repo-cont">
+                        <!-- <h4>REPOSITORIES</h4> -->
+                        <!-- <div id="repos">
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+            <div id="more">
+                <div id="followers_list">
+                    <!-- <h1>Followers:</h1> -->
+                </div>
+                <div id="following_list">
+                    <!-- <h1>Following:</h1> -->
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>Copyright @ Barnil Sarma, 2023</footer>
+</body>
+
+</html>
